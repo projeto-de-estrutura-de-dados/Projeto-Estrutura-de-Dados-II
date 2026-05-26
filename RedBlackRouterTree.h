@@ -86,7 +86,126 @@ private:
         return x;
     }
 
+    // INSERT SIMPLES
+    Node* insert(Node* root, Node* node) {
+
+        if (root == nullptr)
+            return node;
+
+        if (node->rule.id < root->rule.id) {
+
+            root->left = insert(root->left, node);
+            root->left->parent = root;
+
+        } else if (node->rule.id > root->rule.id) {
+
+            root->right = insert(root->right, node);
+            root->right->parent = root;
+        }
+
+        return root;
+    }
+
+    // BALANCEAMENTO APOS INSERT
+    void fixInsert(Node* node) {
+
+        Node* parent = nullptr;
+        Node* grandparent = nullptr;
+
+        while (node != root &&
+               node->color == RED &&
+               node->parent->color == RED) {
+
+            parent = node->parent;
+            grandparent = parent->parent;
+
+            // PAI ESTA NA ESQUERDA
+            if (parent == grandparent->left) {
+
+                Node* uncle = grandparent->right;
+
+                // CASO 1 -> TIO VERMELHO
+                if (uncle != nullptr && uncle->color == RED) {
+
+                    grandparent->color = RED;
+                    parent->color = BLACK;
+                    uncle->color = BLACK;
+
+                    node = grandparent;
+                }
+                else {
+
+                    // CASO 2 -> ESQUERDA-DIREITA
+                    if (node == parent->right) {
+
+                        rotateLeft(parent);
+
+                        node = parent;
+                        parent = node->parent;
+                    }
+
+                    // CASO 3 -> ESQUERDA-ESQUERDA
+                    rotateRight(grandparent);
+
+                    Color temp = parent->color;
+                    parent->color = grandparent->color;
+                    grandparent->color = temp;
+
+                    node = parent;
+                }
+            }
+
+            // PAI ESTA NA DIREITA
+            else {
+
+                Node* uncle = grandparent->left;
+
+                // CASO 1 -> TIO VERMELHO
+                if (uncle != nullptr && uncle->color == RED) {
+
+                    grandparent->color = RED;
+                    parent->color = BLACK;
+                    uncle->color = BLACK;
+
+                    node = grandparent;
+                }
+                else {
+
+                    // CASO 2 -> DIREITA-ESQUERDA
+                    if (node == parent->left) {
+
+                        rotateRight(parent);
+
+                        node = parent;
+                        parent = node->parent;
+                    }
+
+                    // CASO 3 -> DIREITA-DIREITA
+                    rotateLeft(grandparent);
+
+                    Color temp = parent->color;
+                    parent->color = grandparent->color;
+                    grandparent->color = temp;
+
+                    node = parent;
+                }
+            }
+        }
+
+        root->color = BLACK;
+    }
+
 public:
+
+    // INSERT PUBLICO
+    void insert(PacketRule rule) {
+
+        Node* node = new Node(rule);
+
+        root = insert(root, node);
+
+        fixInsert(node);
+    }
 
     int getRotations() {
         return rotations;

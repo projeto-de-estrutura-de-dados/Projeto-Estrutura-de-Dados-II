@@ -195,6 +195,79 @@ private:
         root->color = BLACK;
     }
 
+    // SEARCH INTERNO
+    Node* search(Node* node, int id) {
+
+        if (node == nullptr || node->rule.id == id)
+            return node;
+
+        if (id < node->rule.id)
+            return search(node->left, id);
+
+        return search(node->right, id);
+    }
+
+    // MENOR VALOR DA SUBARVORE
+    Node* minimum(Node* node) {
+
+        while (node->left != nullptr)
+            node = node->left;
+
+        return node;
+    }
+
+    // DELETE
+    Node* deleteNode(Node* root, int id) {
+
+        if (root == nullptr)
+            return root;
+
+        if (id < root->rule.id) {
+
+            root->left = deleteNode(root->left, id);
+        }
+        else if (id > root->rule.id) {
+
+            root->right = deleteNode(root->right, id);
+        }
+        else {
+
+            // SEM FILHOS
+            if (root->left == nullptr && root->right == nullptr) {
+
+                delete root;
+                return nullptr;
+            }
+
+            // UM FILHO
+            else if (root->left == nullptr) {
+
+                Node* temp = root->right;
+
+                delete root;
+
+                return temp;
+            }
+            else if (root->right == nullptr) {
+
+                Node* temp = root->left;
+
+                delete root;
+
+                return temp;
+            }
+
+            // DOIS FILHOS
+            Node* temp = minimum(root->right);
+
+            root->rule = temp->rule;
+
+            root->right = deleteNode(root->right, temp->rule.id);
+        }
+
+        return root;
+    }
+
 public:
 
     // INSERT PUBLICO
@@ -205,6 +278,22 @@ public:
         root = insert(root, node);
 
         fixInsert(node);
+    }
+
+    // SEARCH PUBLICO
+    PacketRule* search(int id) {
+
+        Node* result = search(root, id);
+
+        if (result == nullptr)
+            return nullptr;
+
+        return &result->rule;
+    }
+
+    // DELETE PUBLICO
+    void deleteRule(int id) {
+        root = deleteNode(root, id);
     }
 
     int getRotations() {

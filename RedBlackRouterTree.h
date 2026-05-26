@@ -2,6 +2,8 @@
 #define REDBLACKROUTERTREE_H
 
 #include "PacketRule.h"
+#include <algorithm>
+
 using namespace std;
 
 class RedBlackRouterTree {
@@ -14,6 +16,7 @@ private:
     };
 
     struct Node {
+
         PacketRule rule;
         Color color;
 
@@ -21,18 +24,20 @@ private:
         Node* right;
         Node* parent;
 
-        Node(PacketRule r) :
-            rule(r),
-            color(RED),
-            left(nullptr),
-            right(nullptr),
-            parent(nullptr) {}
+        Node(PacketRule r)
+            : rule(r),
+              color(RED),
+              left(nullptr),
+              right(nullptr),
+              parent(nullptr) {}
     };
 
     Node* root = nullptr;
     int rotations = 0;
 
-    // ROTACAO PARA ESQUERDA
+    // =========================
+    // ROTACAO ESQUERDA
+    // =========================
     Node* rotateLeft(Node* x) {
 
         rotations++;
@@ -48,8 +53,10 @@ private:
 
         if (x->parent == nullptr)
             root = y;
+
         else if (x == x->parent->left)
             x->parent->left = y;
+
         else
             x->parent->right = y;
 
@@ -59,7 +66,9 @@ private:
         return y;
     }
 
-    // ROTACAO PARA DIREITA
+    // =========================
+    // ROTACAO DIREITA
+    // =========================
     Node* rotateRight(Node* y) {
 
         rotations++;
@@ -75,8 +84,10 @@ private:
 
         if (y->parent == nullptr)
             root = x;
+
         else if (y == y->parent->left)
             y->parent->left = x;
+
         else
             y->parent->right = x;
 
@@ -86,7 +97,9 @@ private:
         return x;
     }
 
-    // INSERT SIMPLES
+    // =========================
+    // INSERT INTERNO
+    // =========================
     Node* insert(Node* root, Node* node) {
 
         if (root == nullptr)
@@ -96,8 +109,8 @@ private:
 
             root->left = insert(root->left, node);
             root->left->parent = root;
-
         }
+
         else if (node->rule.id > root->rule.id) {
 
             root->right = insert(root->right, node);
@@ -107,7 +120,9 @@ private:
         return root;
     }
 
-    // BALANCEAMENTO APOS INSERT
+    // =========================
+    // FIX INSERT
+    // =========================
     void fixInsert(Node* node) {
 
         Node* parent = nullptr;
@@ -120,13 +135,14 @@ private:
             parent = node->parent;
             grandparent = parent->parent;
 
-            // PAI ESTA NA ESQUERDA
+            // PAI NA ESQUERDA
             if (parent == grandparent->left) {
 
                 Node* uncle = grandparent->right;
 
                 // TIO VERMELHO
-                if (uncle != nullptr && uncle->color == RED) {
+                if (uncle != nullptr &&
+                    uncle->color == RED) {
 
                     grandparent->color = RED;
                     parent->color = BLACK;
@@ -134,6 +150,7 @@ private:
 
                     node = grandparent;
                 }
+
                 else {
 
                     // ESQUERDA-DIREITA
@@ -156,13 +173,14 @@ private:
                 }
             }
 
-            // PAI ESTA NA DIREITA
+            // PAI NA DIREITA
             else {
 
                 Node* uncle = grandparent->left;
 
                 // TIO VERMELHO
-                if (uncle != nullptr && uncle->color == RED) {
+                if (uncle != nullptr &&
+                    uncle->color == RED) {
 
                     grandparent->color = RED;
                     parent->color = BLACK;
@@ -170,6 +188,7 @@ private:
 
                     node = grandparent;
                 }
+
                 else {
 
                     // DIREITA-ESQUERDA
@@ -196,10 +215,13 @@ private:
         root->color = BLACK;
     }
 
+    // =========================
     // SEARCH INTERNO
+    // =========================
     Node* search(Node* node, int id) {
 
-        if (node == nullptr || node->rule.id == id)
+        if (node == nullptr ||
+            node->rule.id == id)
             return node;
 
         if (id < node->rule.id)
@@ -208,7 +230,9 @@ private:
         return search(node->right, id);
     }
 
+    // =========================
     // MENOR VALOR
+    // =========================
     Node* minimum(Node* node) {
 
         while (node->left != nullptr)
@@ -217,7 +241,48 @@ private:
         return node;
     }
 
+    // =========================
+    // ALTURA
+    // =========================
+    int getHeight(Node* node) {
+
+        if (node == nullptr)
+            return 0;
+
+        int leftHeight = getHeight(node->left);
+        int rightHeight = getHeight(node->right);
+
+        return 1 + max(leftHeight, rightHeight);
+    }
+
+    // =========================
+    // VALIDACAO INTERNA
+    // =========================
+    bool validateRedBlack(Node* node) {
+
+        if (node == nullptr)
+            return true;
+
+        // NO VERMELHO COM FILHO VERMELHO
+        if (node->color == RED) {
+
+            if ((node->left != nullptr &&
+                 node->left->color == RED) ||
+
+                (node->right != nullptr &&
+                 node->right->color == RED)) {
+
+                return false;
+            }
+        }
+
+        return validateRedBlack(node->left) &&
+               validateRedBlack(node->right);
+    }
+
+    // =========================
     // FIX DELETE
+    // =========================
     void fixDelete(Node* node) {
 
         while (node != root &&
@@ -244,6 +309,7 @@ private:
                 // IRMAO PRETO
                 if ((sibling->left == nullptr ||
                      sibling->left->color == BLACK) &&
+
                     (sibling->right == nullptr ||
                      sibling->right->color == BLACK)) {
 
@@ -251,6 +317,7 @@ private:
 
                     node = node->parent;
                 }
+
                 else {
 
                     if (sibling->right == nullptr ||
@@ -299,6 +366,7 @@ private:
                 // IRMAO PRETO
                 if ((sibling->left == nullptr ||
                      sibling->left->color == BLACK) &&
+
                     (sibling->right == nullptr ||
                      sibling->right->color == BLACK)) {
 
@@ -306,6 +374,7 @@ private:
 
                     node = node->parent;
                 }
+
                 else {
 
                     if (sibling->left == nullptr ||
@@ -339,7 +408,9 @@ private:
             node->color = BLACK;
     }
 
+    // =========================
     // DELETE
+    // =========================
     Node* deleteNode(Node* root, int id) {
 
         if (root == nullptr)
@@ -349,10 +420,12 @@ private:
 
             root->left = deleteNode(root->left, id);
         }
+
         else if (id > root->rule.id) {
 
             root->right = deleteNode(root->right, id);
         }
+
         else {
 
             // SEM FILHOS
@@ -372,6 +445,7 @@ private:
 
                 return temp;
             }
+
             else if (root->right == nullptr) {
 
                 Node* temp = root->left;
@@ -386,8 +460,10 @@ private:
 
             root->rule = temp->rule;
 
-            root->right = deleteNode(root->right,
-                                     temp->rule.id);
+            root->right = deleteNode(
+                root->right,
+                temp->rule.id
+            );
         }
 
         return root;
@@ -395,7 +471,9 @@ private:
 
 public:
 
+    // =========================
     // INSERT PUBLICO
+    // =========================
     void insert(PacketRule rule) {
 
         Node* node = new Node(rule);
@@ -405,7 +483,9 @@ public:
         fixInsert(node);
     }
 
+    // =========================
     // SEARCH PUBLICO
+    // =========================
     PacketRule* search(int id) {
 
         Node* result = search(root, id);
@@ -416,7 +496,9 @@ public:
         return &result->rule;
     }
 
+    // =========================
     // DELETE PUBLICO
+    // =========================
     void deleteRule(int id) {
 
         Node* node = search(root, id);
@@ -433,6 +515,31 @@ public:
             root->color = BLACK;
     }
 
+    // =========================
+    // HEIGHT PUBLICO
+    // =========================
+    int height() {
+        return getHeight(root);
+    }
+
+    // =========================
+    // VALIDACAO PUBLICA
+    // =========================
+    bool validateRedBlack() {
+
+        // RAIZ PRECISA SER PRETA
+        if (root != nullptr &&
+            root->color != BLACK) {
+
+            return false;
+        }
+
+        return validateRedBlack(root);
+    }
+
+    // =========================
+    // CONTADOR DE ROTACOES
+    // =========================
     int getRotations() {
         return rotations;
     }

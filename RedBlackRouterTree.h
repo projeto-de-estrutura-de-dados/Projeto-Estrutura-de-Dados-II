@@ -97,7 +97,8 @@ private:
             root->left = insert(root->left, node);
             root->left->parent = root;
 
-        } else if (node->rule.id > root->rule.id) {
+        }
+        else if (node->rule.id > root->rule.id) {
 
             root->right = insert(root->right, node);
             root->right->parent = root;
@@ -124,7 +125,7 @@ private:
 
                 Node* uncle = grandparent->right;
 
-                // CASO 1 -> TIO VERMELHO
+                // TIO VERMELHO
                 if (uncle != nullptr && uncle->color == RED) {
 
                     grandparent->color = RED;
@@ -135,7 +136,7 @@ private:
                 }
                 else {
 
-                    // CASO 2 -> ESQUERDA-DIREITA
+                    // ESQUERDA-DIREITA
                     if (node == parent->right) {
 
                         rotateLeft(parent);
@@ -144,7 +145,7 @@ private:
                         parent = node->parent;
                     }
 
-                    // CASO 3 -> ESQUERDA-ESQUERDA
+                    // ESQUERDA-ESQUERDA
                     rotateRight(grandparent);
 
                     Color temp = parent->color;
@@ -160,7 +161,7 @@ private:
 
                 Node* uncle = grandparent->left;
 
-                // CASO 1 -> TIO VERMELHO
+                // TIO VERMELHO
                 if (uncle != nullptr && uncle->color == RED) {
 
                     grandparent->color = RED;
@@ -171,7 +172,7 @@ private:
                 }
                 else {
 
-                    // CASO 2 -> DIREITA-ESQUERDA
+                    // DIREITA-ESQUERDA
                     if (node == parent->left) {
 
                         rotateRight(parent);
@@ -180,7 +181,7 @@ private:
                         parent = node->parent;
                     }
 
-                    // CASO 3 -> DIREITA-DIREITA
+                    // DIREITA-DIREITA
                     rotateLeft(grandparent);
 
                     Color temp = parent->color;
@@ -207,13 +208,135 @@ private:
         return search(node->right, id);
     }
 
-    // MENOR VALOR DA SUBARVORE
+    // MENOR VALOR
     Node* minimum(Node* node) {
 
         while (node->left != nullptr)
             node = node->left;
 
         return node;
+    }
+
+    // FIX DELETE
+    void fixDelete(Node* node) {
+
+        while (node != root &&
+               node != nullptr &&
+               node->color == BLACK) {
+
+            // NODE NA ESQUERDA
+            if (node == node->parent->left) {
+
+                Node* sibling = node->parent->right;
+
+                // IRMAO VERMELHO
+                if (sibling != nullptr &&
+                    sibling->color == RED) {
+
+                    sibling->color = BLACK;
+                    node->parent->color = RED;
+
+                    rotateLeft(node->parent);
+
+                    sibling = node->parent->right;
+                }
+
+                // IRMAO PRETO
+                if ((sibling->left == nullptr ||
+                     sibling->left->color == BLACK) &&
+                    (sibling->right == nullptr ||
+                     sibling->right->color == BLACK)) {
+
+                    sibling->color = RED;
+
+                    node = node->parent;
+                }
+                else {
+
+                    if (sibling->right == nullptr ||
+                        sibling->right->color == BLACK) {
+
+                        if (sibling->left != nullptr)
+                            sibling->left->color = BLACK;
+
+                        sibling->color = RED;
+
+                        rotateRight(sibling);
+
+                        sibling = node->parent->right;
+                    }
+
+                    sibling->color = node->parent->color;
+
+                    node->parent->color = BLACK;
+
+                    if (sibling->right != nullptr)
+                        sibling->right->color = BLACK;
+
+                    rotateLeft(node->parent);
+
+                    node = root;
+                }
+            }
+
+            // NODE NA DIREITA
+            else {
+
+                Node* sibling = node->parent->left;
+
+                // IRMAO VERMELHO
+                if (sibling != nullptr &&
+                    sibling->color == RED) {
+
+                    sibling->color = BLACK;
+                    node->parent->color = RED;
+
+                    rotateRight(node->parent);
+
+                    sibling = node->parent->left;
+                }
+
+                // IRMAO PRETO
+                if ((sibling->left == nullptr ||
+                     sibling->left->color == BLACK) &&
+                    (sibling->right == nullptr ||
+                     sibling->right->color == BLACK)) {
+
+                    sibling->color = RED;
+
+                    node = node->parent;
+                }
+                else {
+
+                    if (sibling->left == nullptr ||
+                        sibling->left->color == BLACK) {
+
+                        if (sibling->right != nullptr)
+                            sibling->right->color = BLACK;
+
+                        sibling->color = RED;
+
+                        rotateLeft(sibling);
+
+                        sibling = node->parent->left;
+                    }
+
+                    sibling->color = node->parent->color;
+
+                    node->parent->color = BLACK;
+
+                    if (sibling->left != nullptr)
+                        sibling->left->color = BLACK;
+
+                    rotateRight(node->parent);
+
+                    node = root;
+                }
+            }
+        }
+
+        if (node != nullptr)
+            node->color = BLACK;
     }
 
     // DELETE
@@ -233,7 +356,8 @@ private:
         else {
 
             // SEM FILHOS
-            if (root->left == nullptr && root->right == nullptr) {
+            if (root->left == nullptr &&
+                root->right == nullptr) {
 
                 delete root;
                 return nullptr;
@@ -262,7 +386,8 @@ private:
 
             root->rule = temp->rule;
 
-            root->right = deleteNode(root->right, temp->rule.id);
+            root->right = deleteNode(root->right,
+                                     temp->rule.id);
         }
 
         return root;
@@ -293,7 +418,19 @@ public:
 
     // DELETE PUBLICO
     void deleteRule(int id) {
+
+        Node* node = search(root, id);
+
+        if (node == nullptr)
+            return;
+
         root = deleteNode(root, id);
+
+        if (root != nullptr)
+            fixDelete(root);
+
+        if (root != nullptr)
+            root->color = BLACK;
     }
 
     int getRotations() {

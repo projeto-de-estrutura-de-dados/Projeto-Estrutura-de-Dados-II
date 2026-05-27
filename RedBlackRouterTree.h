@@ -47,7 +47,7 @@ private:
     }
 
     // ====================================
-    // ROTACAO ESQUERDA
+    // ROTAÇÃO ESQUERDA
     // ====================================
     void rotateLeft(Node* x) {
 
@@ -72,12 +72,11 @@ private:
             x->parent->right = y;
 
         y->left = x;
-
         x->parent = y;
     }
 
     // ====================================
-    // ROTACAO DIREITA
+    // ROTAÇÃO DIREITA
     // ====================================
     void rotateRight(Node* y) {
 
@@ -102,7 +101,6 @@ private:
             y->parent->right = x;
 
         x->right = y;
-
         y->parent = x;
     }
 
@@ -141,7 +139,7 @@ private:
             Node* parent = node->parent;
             Node* grandparent = parent->parent;
 
-            // PAI ESQUERDA
+            // PAI À ESQUERDA
             if (parent == grandparent->left) {
 
                 Node* uncle = grandparent->right;
@@ -177,7 +175,7 @@ private:
                 }
             }
 
-            // PAI DIREITA
+            // PAI À DIREITA
             else {
 
                 Node* uncle = grandparent->left;
@@ -214,7 +212,8 @@ private:
             }
         }
 
-        root->color = BLACK;
+        if (root != nullptr)
+            root->color = BLACK;
     }
 
     // ====================================
@@ -233,7 +232,7 @@ private:
     }
 
     // ====================================
-    // MINIMO
+    // MENOR NÓ
     // ====================================
     Node* minimum(Node* node) {
 
@@ -264,27 +263,37 @@ private:
     // ====================================
     // FIX DELETE
     // ====================================
-    void fixDelete(Node* node) {
+    void fixDelete(Node* node, Node* parent) {
 
         while (node != root &&
                getColor(node) == BLACK) {
 
-            // NODE ESQUERDA
-            if (node == node->parent->left) {
+            if (parent == nullptr)
+                break;
 
-                Node* sibling =
-                    node->parent->right;
+            // NODE À ESQUERDA
+            if (node == parent->left) {
+
+                Node* sibling = parent->right;
 
                 // CASO 1
                 if (getColor(sibling) == RED) {
 
                     sibling->color = BLACK;
-                    node->parent->color = RED;
+                    parent->color = RED;
 
-                    rotateLeft(node->parent);
+                    rotateLeft(parent);
 
-                    sibling =
-                        node->parent->right;
+                    sibling = parent->right;
+                }
+
+                // SIBLING NULO
+                if (sibling == nullptr) {
+
+                    node = parent;
+                    parent = node->parent;
+
+                    continue;
                 }
 
                 // CASO 2
@@ -293,60 +302,62 @@ private:
 
                     sibling->color = RED;
 
-                    node = node->parent;
+                    node = parent;
+                    parent = node->parent;
                 }
 
                 else {
 
                     // CASO 3
-                    if (getColor(sibling->right)
-                        == BLACK) {
+                    if (getColor(sibling->right) == BLACK) {
 
                         if (sibling->left != nullptr)
-                            sibling->left->color =
-                                BLACK;
+                            sibling->left->color = BLACK;
 
                         sibling->color = RED;
 
                         rotateRight(sibling);
 
-                        sibling =
-                            node->parent->right;
+                        sibling = parent->right;
                     }
 
                     // CASO 4
-                    sibling->color =
-                        node->parent->color;
+                    sibling->color = parent->color;
 
-                    node->parent->color =
-                        BLACK;
+                    parent->color = BLACK;
 
                     if (sibling->right != nullptr)
-                        sibling->right->color =
-                            BLACK;
+                        sibling->right->color = BLACK;
 
-                    rotateLeft(node->parent);
+                    rotateLeft(parent);
 
                     node = root;
                 }
             }
 
-            // NODE DIREITA
+            // NODE À DIREITA
             else {
 
-                Node* sibling =
-                    node->parent->left;
+                Node* sibling = parent->left;
 
                 // CASO 1
                 if (getColor(sibling) == RED) {
 
                     sibling->color = BLACK;
-                    node->parent->color = RED;
+                    parent->color = RED;
 
-                    rotateRight(node->parent);
+                    rotateRight(parent);
 
-                    sibling =
-                        node->parent->left;
+                    sibling = parent->left;
+                }
+
+                // SIBLING NULO
+                if (sibling == nullptr) {
+
+                    node = parent;
+                    parent = node->parent;
+
+                    continue;
                 }
 
                 // CASO 2
@@ -355,43 +366,41 @@ private:
 
                     sibling->color = RED;
 
-                    node = node->parent;
+                    node = parent;
+                    parent = node->parent;
                 }
 
                 else {
 
                     // CASO 3
-                    if (getColor(sibling->left)
-                        == BLACK) {
+                    if (getColor(sibling->left) == BLACK) {
 
                         if (sibling->right != nullptr)
-                            sibling->right->color =
-                                BLACK;
+                            sibling->right->color = BLACK;
 
                         sibling->color = RED;
 
                         rotateLeft(sibling);
 
-                        sibling =
-                            node->parent->left;
+                        sibling = parent->left;
                     }
 
                     // CASO 4
-                    sibling->color =
-                        node->parent->color;
+                    sibling->color = parent->color;
 
-                    node->parent->color =
-                        BLACK;
+                    parent->color = BLACK;
 
                     if (sibling->left != nullptr)
-                        sibling->left->color =
-                            BLACK;
+                        sibling->left->color = BLACK;
 
-                    rotateRight(node->parent);
+                    rotateRight(parent);
 
                     node = root;
                 }
             }
+
+            if (node != nullptr)
+                parent = node->parent;
         }
 
         if (node != nullptr)
@@ -399,12 +408,13 @@ private:
     }
 
     // ====================================
-    // DELETE
+    // DELETE NODE
     // ====================================
     void deleteNode(Node* z) {
 
         Node* y = z;
         Node* x = nullptr;
+        Node* xParent = nullptr;
 
         Color originalColor = y->color;
 
@@ -412,6 +422,7 @@ private:
         if (z->left == nullptr) {
 
             x = z->right;
+            xParent = z->parent;
 
             transplant(z, z->right);
         }
@@ -420,6 +431,7 @@ private:
         else if (z->right == nullptr) {
 
             x = z->left;
+            xParent = z->parent;
 
             transplant(z, z->left);
         }
@@ -435,11 +447,15 @@ private:
 
             if (y->parent == z) {
 
+                xParent = y;
+
                 if (x != nullptr)
                     x->parent = y;
             }
 
             else {
+
+                xParent = y->parent;
 
                 transplant(y, y->right);
 
@@ -461,10 +477,10 @@ private:
 
         delete z;
 
-        if (originalColor == BLACK &&
-            x != nullptr) {
+        // CORREÇÃO DO BLACK HEIGHT
+        if (originalColor == BLACK) {
 
-            fixDelete(x);
+            fixDelete(x, xParent);
         }
 
         if (root != nullptr)
@@ -479,15 +495,14 @@ private:
         if (node == nullptr)
             return 0;
 
-        return 1 +
-               max(
-                   getHeight(node->left),
-                   getHeight(node->right)
-               );
+        return 1 + max(
+            getHeight(node->left),
+            getHeight(node->right)
+        );
     }
 
     // ====================================
-    // VALIDACAO VERMELHO
+    // VALIDAÇÃO RED
     // ====================================
     bool validateRed(Node* node) {
 
@@ -573,29 +588,29 @@ public:
     }
 
     // ====================================
-    // HEIGHT PUBLICO
+    // HEIGHT
     // ====================================
     int height() {
         return getHeight(root);
     }
 
     // ====================================
-    // VALIDACAO PUBLICA
+    // VALIDATE
     // ====================================
     bool validateRedBlack() {
 
         if (root == nullptr)
             return true;
 
-        // RAIZ PRECISA SER PRETA
+        // RAIZ PRETA
         if (root->color != BLACK)
             return false;
 
-        // VALIDAR FILHOS VERMELHOS
+        // SEM VERMELHO DUPLO
         if (!validateRed(root))
             return false;
 
-        // VALIDAR BLACK HEIGHT
+        // BLACK HEIGHT
         if (blackHeight(root) == 0)
             return false;
 
@@ -603,7 +618,7 @@ public:
     }
 
     // ====================================
-    // ROTACOES
+    // ROTAÇÕES
     // ====================================
     int getRotations() {
         return rotations;

@@ -1,135 +1,218 @@
-📚 Projeto Estrutura de Dados II
+# Projeto Estrutura de Dados II
 
-📌 Descrição
+## Introducao
 
-Este projeto foi desenvolvido como parte da disciplina de Estrutura de Dados II, com o objetivo de implementar e compreender o funcionamento interno de árvores balanceadas (AVL).
+Este repositorio registra a evolucao de um projeto desenvolvido na disciplina de Estrutura de Dados II, com foco na implementacao manual de estruturas de busca balanceadas.
 
+O projeto foi construido em C++ e se concentrou em duas frentes principais:
 
+- implementacao da arvore AVL
+- implementacao da arvore Red-Black
 
-O foco principal está na construção manual das operações fundamentais da estrutura, garantindo eficiência nas operações de inserção e busca por meio de balanceamento automático.
+Ao longo do desenvolvimento, o repositorio tambem recebeu ajustes de integracao entre branches, validacoes estruturais e uma etapa de auditoria tecnica para revisar a corretude das operacoes de delecao e rebalanceamento.
 
+## Objetivos
 
+O objetivo principal do projeto foi estudar, implementar e validar estruturas de dados balanceadas para operacoes de:
 
-🚀 Período de Desenvolvimento
+- insercao
+- busca
+- remocao
+- rebalanceamento
+- validacao de invariantes
 
+Tambem foi adotado um modelo de trabalho em equipe com uso de branches, pull requests e code review, aproximando a atividade de uma dinamica real de desenvolvimento colaborativo.
 
+## Estrutura do repositorio
 
-📅 02 a 06 (última atualização considerada)
+- `PacketRule.h`: classe base com os dados da regra de roteamento.
+- `AVLRouterTree.h`: implementacao da arvore AVL.
+- `RedBlackRouterTree.h`: implementacao da arvore Red-Black.
+- `integrante3_audit.cpp`: auditoria automatizada usada na etapa de QA.
+- `INTEGRANTE3_REVIEW.md`: registro tecnico da revisao do Integrante 3.
+- `README.md`: documentacao geral do projeto.
 
+## Funcionalidades implementadas
 
+### PacketRule
 
-Durante esse período, o projeto evoluiu significativamente, passando da estrutura básica até um sistema completo de balanceamento com métricas de controle.
+- armazenamento de `id`
+- armazenamento de `sourceIp`
+- armazenamento de `destinationIp`
+- armazenamento de `priority`
 
-✅ Funcionalidades Implementadas
+### AVL
 
-✔️ Estrutura do Node
+- insercao ordenada por chave
+- busca por `id`
+- remocao com rebalanceamento
+- calculo de altura
+- calculo de fator de balanceamento
+- rotacoes simples e duplas
+- validacao estrutural da arvore
+- contador de rotacoes
 
-✔️ Função de inserção (insert())
+### Red-Black
 
-✔️ Função de busca (search())
+- insercao com recoloracao e rotacoes
+- busca por `id`
+- remocao com rebalanceamento
+- tratamento de `transplant`
+- validacao de raiz preta
+- validacao de nos vermelhos
+- validacao de `black-height`
+- contador de rotacoes
 
-✔️ Cálculo de altura
+### QA e auditoria tecnica
 
-✔️ Fator de balanceamento
+- verificacao automatizada das invariantes
+- teste com carga ordenada
+- remocao de 20% dos nos
+- verificacao de buscas apos insercao e delecao
+- apoio ao code review tecnico
 
-✔️ Rotações (simples e duplas)
+## Principais dificuldades encontradas
 
-✔️ Rebalanceamento automático
+Com base no historico dos commits e no processo de auditoria, as principais dificuldades do projeto foram:
 
-✔️ Contador de rotações
+- implementar a remocao da AVL sem quebrar altura e fator de balanceamento
+- manter a coerencia entre rebalanceamento e atualizacao de ponteiros
+- implementar `fixDelete` da Red-Black corretamente
+- tratar casos de `sibling` nulo na delecao da Red-Black
+- corrigir violacoes de `black-height` apos remover nos pretos
+- validar a estrutura de forma completa, e nao apenas por buscas simples
+- integrar mudancas de multiplas branches sem perder arquivos importantes como `PacketRule.h` e `AVLRouterTree.h`
 
-🧠 Conceitos Aplicados
+## Evolucao do projeto por dia e commits
 
-Este projeto aborda conceitos essenciais da disciplina, como:
+### 2026-04-29
 
+- `5c955d2` - `isac2306` - `Initial commit`
+- `d8d6e6e` - `vyctor_gabriel11` - `classe PacketRule`
+- `b8c216a` - `vyctor_gabriel11` - `avl inicio`
 
+Contribuicoes do dia:
 
-Árvores Binárias de Busca (BST)
+- criacao da base do repositorio
+- definicao da classe `PacketRule`
+- inicio da estrutura AVL
 
-Árvores AVL (auto-balanceadas)
+### 2026-04-30
 
-Complexidade de algoritmos
+- `bfcc056` - `vyctor_gabriel11` - `adiciona insercao e estrutura de altura com balanceamento na AVL`
 
-Balanceamento por rotações
+Contribuicoes do dia:
 
-Estruturas dinâmicas com ponteiros
+- implementacao inicial da insercao
+- montagem da base para controle de altura e balanceamento na AVL
 
+### 2026-05-04
 
+- `561a59e` - `Mardson Varela Lima` - `Merge pull request #1 from vgt321/Cria-estrutura-base-da-AVL`
 
-Esses tópicos fazem parte do conteúdo clássico de Estruturas de Dados II, incluindo árvores e algoritmos eficientes .
+Contribuicoes do dia:
 
+- integracao da primeira etapa da AVL ao fluxo principal do repositorio
 
+### 2026-05-05
 
-⚙️ Estrutura do Projeto
+- `be31d49` - `vyctor_gabriel11` - `aplicacao da rotacao`
+- `a9edf5e` - `vyctor_gabriel11` - `implementacao da search`
 
-📁 Projeto-Estrutura-de-Dados-II
+Contribuicoes do dia:
 
- ┣ 📄 main.c
- 
- ┣ 📄 avl.c / avl.h
- 
- ┣ 📄 node.h
- 
- ┗ 📄 README.md
+- implementacao das rotacoes da AVL
+- adicao da operacao de busca
 
+### 2026-05-06
 
+- `159422a` - `vyctor_gabriel11` - `Implementa remocao com rebalanceamento na AVL`
+- `95529c3` - `vyctor_gabriel11` - `Delete AVLRouterTree.h`
+- `a41e934` - `vyctor_gabriel11` - `Delete PacketRule.h`
+- `3584de5` - `isac2306` - `Update README with project details and functionalities`
+- `a47b123` - `isac2306` - `Revise README with project overview and updates`
 
- 🔄 Evolução do Projeto (02 → 06)
- 
+Contribuicoes do dia:
 
-📅 Dia 02
+- implementacao da remocao na AVL
+- reorganizacao do repositorio na branch principal
+- atualizacao inicial da documentacao
 
-Criação da estrutura base do projeto
+### 2026-05-08
 
-Implementação do Node
+- `04828cf` - `vyctor_gabriel11` - `Adiciona validacao da AVL`
 
-Definição inicial da árvore
+Contribuicoes do dia:
 
+- adicao da primeira camada de validacao estrutural da AVL
 
-📅 Dia 03
+### 2026-05-13
 
-Implementação da função insert()
+- `026fd5d` - `vyctor_gabriel11` - `Finaliza AVL com remocao validacao e altura`
+- `e154028` - `vyctor_gabriel11` - `fix: mantendo AVLRouterTree.h e resolvendo conflito de delecao`
+- `30d9c46` - `vyctor_gabriel11` - `packetrule fix: recuperando PacketRule necessario para o projeto`
 
-Primeiros testes de inserção
+Contribuicoes do dia:
 
+- fechamento da etapa AVL
+- resolucao de conflitos entre branches
+- recuperacao de arquivos essenciais para o projeto
 
+### 2026-05-20
 
-📅 Dia 04
+- `d57c993` - `vyctor_gabriel11` - `Cria estrutura base da Red-Black`
 
-Implementação da função search()
+Contribuicoes do dia:
 
-Estrutura da árvore funcionando como BST
+- inicio da implementacao da arvore Red-Black
 
+### 2026-05-26
 
+- `09c0dec` - `vyctor_gabriel11` - `Update RedBlackRouterTree.h`
+- `2cd0108` - `vyctor_gabriel11` - `Implementa insercao e balanceamento da Red-Black`
+- `eafcb8c` - `vyctor_gabriel11` - `Implementa busca e remocao inicial da Red-Black`
+- `952ebed` - `vyctor_gabriel11` - `Implementa fixDelete e rebalanceamento da Red-Black`
+- `e997e4d` - `vyctor_gabriel11` - `Finaliza implementacao da Red-Black`
+- `b49b4f5` - `isac2306` - `Add integrante 3 audit and review`
+- `5e3dcdf` - `vyctor_gabriel11` - `refactor: complete Red-Black tree implementation with validation`
 
-📅 Dia 05
+Contribuicoes do dia:
 
-Implementação do cálculo de altura
+- evolucao completa da Red-Black
+- implementacao de insercao, busca, remocao e rebalanceamento
+- refatoracao da implementacao
+- entrada da etapa de auditoria tecnica e QA
 
-Implementação do fator de balanceamento
+### 2026-05-27
 
-Início do sistema de rotações
+- `2580816` - `vyctor_gabriel11` - `fix(redblack): repair delete balancing, null sibling cases and black-height validation`
+- `735bb8f` - `vyctor_gabriel11` - `Merge pull request #2 from projeto-de-estrutura-de-dados/balanceameno-e-altura-AVL`
 
+Contribuicoes do dia:
 
+- correcao dos pontos mais sensiveis da delecao da Red-Black
+- ajuste de `black-height`
+- tratamento de `sibling` nulo
+- merge da branch da AVL na `main`
 
-📅 Dia 06
+## Analise do historico
 
-Implementação completa das rotações (LL, RR, LR, RL)
+O historico dos commits permite observar com clareza a progressao do trabalho:
 
-Sistema de rebalanceamento automático
+1. o projeto comecou pela modelagem dos dados e pela AVL
+2. a AVL amadureceu com insercao, busca, remocao, validacao e altura
+3. depois a equipe iniciou a Red-Black, que exigiu mais iteracoes por causa da complexidade da delecao
+4. a fase de QA encontrou problemas reais na remocao da Red-Black
+5. os commits finais foram dedicados a corrigir esses problemas e estabilizar a estrutura
 
-Implementação do contador de rotações
+## Conclusao
 
-Árvore AVL totalmente funcional ✅
+Este repositorio nao apresenta apenas o resultado final do projeto, mas tambem evidencia o processo de desenvolvimento:
 
+- construcao incremental
+- correcoes tecnicas
+- integracao entre branches
+- code review
+- auditoria estrutural
 
-📈 Melhorias Futuras
-
-🔹 Remoção de nós (delete)
-
-🔹 Impressão visual da árvore
-
-🔹 Exportação de dados para arquivo
-
-🔹 Interface interativa no terminal
-🔹 Testes automatizados
+Dessa forma, o repositorio funciona tanto como entrega academica quanto como registro da evolucao tecnica e colaborativa da equipe na implementacao de estruturas de dados balanceadas.

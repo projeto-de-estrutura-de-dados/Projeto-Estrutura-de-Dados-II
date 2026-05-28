@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -10,23 +11,47 @@ using namespace std;
 
 int main() {
 
+  const int TOTAL_RULES = 100000;
+  const int DELETE_PERCENT = 20;
+
+  int deleteAmount = TOTAL_RULES * DELETE_PERCENT / 100;
+
+  srand(42);
+
   vector<PacketRule> rules;
 
-  for (int i = 1; i <= 100000; i++) {
+  cout << "Generating packet rules..." << endl;
+
+  for (int i = 1; i <= TOTAL_RULES; i++) {
 
     rules.push_back(PacketRule(i, "192.168.0.1", "10.0.0.1", rand() % 100));
   }
+
+  cout << "Rules generated: " << rules.size() << endl << endl;
+
   AVLRouterTree avl;
   RedBlackRouterTree rb;
 
-  auto start = chrono::high_resolution_clock::now();
-  auto end = chrono::high_resolution_clock::now();
-  auto duration =
-      chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+  ofstream file("results.csv");
 
-  auto stratAVL = chrono::high_resolution_clock::now();
+  file << "Structure,"
+       << "InsertTime(ns),"
+       << "SearchTime(ns),"
+       << "DeleteTime(ns),"
+       << "Height,"
+       << "Rotations,"
+       << "Valid" << endl;
+
+  cout << "==============================" << endl;
+
+  cout << "AVL INSERT TEST" << endl;
+
+  cout << "==============================" << endl;
+
+  auto startAVL = chrono::high_resolution_clock::now();
 
   for (auto &rule : rules) {
+
     avl.insert(rule);
   }
 
@@ -35,40 +60,131 @@ int main() {
   auto avlInsertTime =
       chrono::duration_cast<chrono::nanoseconds>(endAVL - startAVL).count();
 
-  cout << "AVL Insert Time:" << avlInsertTime << " ns" << endl;
+  cout << "AVL Insert Time: " << avlInsertTime << " ns" << endl;
 
-  auto startRB = chrono::high_resolution_clock::now();
+  auto avlSearchStart = chrono::high_resolution_clock::now();
 
-  for (auto &rule : rules) {
-    rb.insert(rule);
-  }
+  for (int i = 1; i <= TOTAL_RULES; i++) {
 
-  auto endRB = chrono::high_resolution_clock::now();
-
-  auto searchStart = chrono::high_resolution_clock::now();
-
-  for (int i = 1; i <= 100000; i++) {
     avl.search(i);
   }
 
-  auto searchEnd = chrono::high_resolution_clock::now();
+  auto avlSearchEnd = chrono::high_resolution_clock::now();
 
-  int deleteAmount = 100000 * 0.2;
+  auto avlSearchTime =
+      chrono::duration_cast<chrono::nanoseconds>(avlSearchEnd - avlSearchStart)
+          .count();
+
+  cout << "AVL Search Time: " << avlSearchTime << " ns" << endl;
+
+  auto avlDeleteStart = chrono::high_resolution_clock::now();
 
   for (int i = 1; i <= deleteAmount; i++) {
+
     avl.deleteRule(i);
   }
 
-  avl.validateAVL();
-  rb.validateRedBlack();
+  auto avlDeleteEnd = chrono::high_resolution_clock::now();
+
+  auto avlDeleteTime =
+      chrono::duration_cast<chrono::nanoseconds>(avlDeleteEnd - avlDeleteStart)
+          .count();
+
+  cout << "AVL Delete Time: " << avlDeleteTime << " ns" << endl;
 
   cout << "AVL Height: " << avl.height() << endl;
 
   cout << "AVL Rotations: " << avl.getRotations() << endl;
 
-  ofstream file("results.csv");
-  file << "Estrutura,Tempo\n";
-  file << "AVL," << avlInsertTime << "\n";
+  cout << "AVL Valid: ";
 
-  file << "RedBlack," << rbInsertTime << "\n";
+  if (avl.validateAVL())
+    cout << "YES";
+  else
+    cout << "NO";
+
+  cout << endl << endl;
+
+  file << "AVL," << avlInsertTime << "," << avlSearchTime << ","
+       << avlDeleteTime << "," << avl.height() << "," << avl.getRotations()
+       << "," << (avl.validateAVL() ? "YES" : "NO") << endl;
+
+  cout << "==============================" << endl;
+
+  cout << "RED BLACK INSERT TEST" << endl;
+
+  cout << "==============================" << endl;
+
+  auto startRB = chrono::high_resolution_clock::now();
+
+  for (auto &rule : rules) {
+
+    rb.insert(rule);
+  }
+
+  auto endRB = chrono::high_resolution_clock::now();
+
+  auto rbInsertTime =
+      chrono::duration_cast<chrono::nanoseconds>(endRB - startRB).count();
+
+  cout << "RB Insert Time: " << rbInsertTime << " ns" << endl;
+
+  auto rbSearchStart = chrono::high_resolution_clock::now();
+
+  for (int i = 1; i <= TOTAL_RULES; i++) {
+
+    rb.search(i);
+  }
+
+  auto rbSearchEnd = chrono::high_resolution_clock::now();
+
+  auto rbSearchTime =
+      chrono::duration_cast<chrono::nanoseconds>(rbSearchEnd - rbSearchStart)
+          .count();
+
+  cout << "RB Search Time: " << rbSearchTime << " ns" << endl;
+
+  auto rbDeleteStart = chrono::high_resolution_clock::now();
+
+  for (int i = 1; i <= deleteAmount; i++) {
+
+    rb.deleteRule(i);
+  }
+
+  auto rbDeleteEnd = chrono::high_resolution_clock::now();
+
+  auto rbDeleteTime =
+      chrono::duration_cast<chrono::nanoseconds>(rbDeleteEnd - rbDeleteStart)
+          .count();
+
+  cout << "RB Delete Time: " << rbDeleteTime << " ns" << endl;
+
+  cout << "RB Height: " << rb.height() << endl;
+
+  cout << "RB Rotations: " << rb.getRotations() << endl;
+
+  cout << "RB Valid: ";
+
+  if (rb.validateRedBlack())
+    cout << "YES";
+  else
+    cout << "NO";
+
+  cout << endl << endl;
+
+  file << "RedBlack," << rbInsertTime << "," << rbSearchTime << ","
+       << rbDeleteTime << "," << rb.height() << "," << rb.getRotations() << ","
+       << (rb.validateRedBlack() ? "YES" : "NO") << endl;
+
+  file.close();
+
+  cout << "==============================" << endl;
+
+  cout << "BENCHMARK FINISHED" << endl;
+
+  cout << "==============================" << endl;
+
+  cout << "Results exported to results.csv" << endl;
+
+  return 0;
 }

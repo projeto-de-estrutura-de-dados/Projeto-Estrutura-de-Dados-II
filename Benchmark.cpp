@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-
 #include "AVLRouterTree.h"
 #include "RedBlackRouterTree.h"
 
@@ -24,4 +23,12 @@ int main() {
   auto end = chrono::high_resolution_clock::now();
   auto duration =
       chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+
+  auto stratAVL = chrono::high_resolution_clock::now();
+
+  for (auto &rule : rules) {
+    avl.insert(rule);
+  }
+
+  auto endAVL = chrono::high_resolution_clock::now();
 }

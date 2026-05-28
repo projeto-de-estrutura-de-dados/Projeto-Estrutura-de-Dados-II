@@ -31,4 +31,9 @@ int main() {
   }
 
   auto endAVL = chrono::high_resolution_clock::now();
+
+  auto avlInsertTime =
+      chrono::duration_cast<chrono::nanoseconds>(endAVL - startAVL).count();
+
+  cout << "AVL Insert Time:" << avlInsertTime << " ns" << endl;
 }

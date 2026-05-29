@@ -85,7 +85,7 @@ int main() {
          << " ns"
          << endl;
 
-    volatile int avlChecksum = 0;
+    int avlChecksum = 0;
 
     auto avlSearchStart =
         chrono::high_resolution_clock::now();
@@ -198,7 +198,7 @@ int main() {
          << " ns"
          << endl;
 
-    volatile int rbChecksum = 0;
+    int rbChecksum = 0;
 
     auto rbSearchStart =
         chrono::high_resolution_clock::now();

@@ -11,180 +11,288 @@ using namespace std;
 
 int main() {
 
-  const int TOTAL_RULES = 100000;
-  const int DELETE_PERCENT = 20;
+    const int TOTAL_RULES = 100000;
+    const int DELETE_PERCENT = 20;
 
-  int deleteAmount = TOTAL_RULES * DELETE_PERCENT / 100;
+    int deleteAmount =
+        TOTAL_RULES * DELETE_PERCENT / 100;
 
-  srand(42);
+    srand(42);
 
-  vector<PacketRule> rules;
+    vector<PacketRule> rules;
 
-  cout << "Generating packet rules..." << endl;
+    cout << "Generating packet rules..."
+         << endl;
 
-  for (int i = 1; i <= TOTAL_RULES; i++) {
+    for (int i = 1; i <= TOTAL_RULES; i++) {
 
-    rules.push_back(PacketRule(i, "192.168.0.1", "10.0.0.1", rand() % 100));
-  }
+        rules.push_back(
+            PacketRule(
+                i,
+                "192.168.0.1",
+                "10.0.0.1",
+                rand() % 100
+            )
+        );
+    }
 
-  cout << "Rules generated: " << rules.size() << endl << endl;
+    cout << "Rules generated: "
+         << rules.size()
+         << endl << endl;
 
-  AVLRouterTree avl;
-  RedBlackRouterTree rb;
+    AVLRouterTree avl;
+    RedBlackRouterTree rb;
 
-  ofstream file("results.csv");
+    ofstream file("results.csv");
 
-  file << "Structure,"
-       << "InsertTime(ns),"
-       << "SearchTime(ns),"
-       << "DeleteTime(ns),"
-       << "Height,"
-       << "Rotations,"
-       << "Valid" << endl;
+    file << "Structure,"
+         << "InsertTime(ns),"
+         << "SearchTime(ns),"
+         << "DeleteTime(ns),"
+         << "Height,"
+         << "Rotations,"
+         << "Valid"
+         << endl;
 
-  cout << "==============================" << endl;
+    cout << "=============================="
+         << endl;
 
-  cout << "AVL INSERT TEST" << endl;
+    cout << "AVL INSERT TEST"
+         << endl;
 
-  cout << "==============================" << endl;
+    cout << "=============================="
+         << endl;
 
-  auto startAVL = chrono::high_resolution_clock::now();
+    auto startAVL =
+        chrono::high_resolution_clock::now();
 
-  for (auto &rule : rules) {
+    for (auto &rule : rules) {
 
-    avl.insert(rule);
-  }
+        avl.insert(rule);
+    }
 
-  auto endAVL = chrono::high_resolution_clock::now();
+    auto endAVL =
+        chrono::high_resolution_clock::now();
 
-  auto avlInsertTime =
-      chrono::duration_cast<chrono::nanoseconds>(endAVL - startAVL).count();
+    auto avlInsertTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                endAVL - startAVL
+        ).count();
 
-  cout << "AVL Insert Time: " << avlInsertTime << " ns" << endl;
+    cout << "AVL Insert Time: "
+         << avlInsertTime
+         << " ns"
+         << endl;
 
-  auto avlSearchStart = chrono::high_resolution_clock::now();
+    volatile int avlChecksum = 0;
 
-  for (int i = 1; i <= TOTAL_RULES; i++) {
+    auto avlSearchStart =
+        chrono::high_resolution_clock::now();
 
-    avl.search(i);
-  }
+    for (int i = 1; i <= TOTAL_RULES; i++) {
 
-  auto avlSearchEnd = chrono::high_resolution_clock::now();
+        PacketRule* result =
+            avl.search(i);
 
-  auto avlSearchTime =
-      chrono::duration_cast<chrono::nanoseconds>(avlSearchEnd - avlSearchStart)
-          .count();
+        if (result != nullptr) {
 
-  cout << "AVL Search Time: " << avlSearchTime << " ns" << endl;
+            avlChecksum += result->priority;
+        }
+    }
 
-  auto avlDeleteStart = chrono::high_resolution_clock::now();
+    auto avlSearchEnd =
+        chrono::high_resolution_clock::now();
 
-  for (int i = 1; i <= deleteAmount; i++) {
+    auto avlSearchTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                avlSearchEnd - avlSearchStart
+        ).count();
 
-    avl.deleteRule(i);
-  }
+    cout << "AVL Search Time: "
+         << avlSearchTime
+         << " ns"
+         << endl;
 
-  auto avlDeleteEnd = chrono::high_resolution_clock::now();
+    auto avlDeleteStart =
+        chrono::high_resolution_clock::now();
 
-  auto avlDeleteTime =
-      chrono::duration_cast<chrono::nanoseconds>(avlDeleteEnd - avlDeleteStart)
-          .count();
+    for (int i = 1; i <= deleteAmount; i++) {
 
-  cout << "AVL Delete Time: " << avlDeleteTime << " ns" << endl;
+        avl.deleteRule(i);
+    }
 
-  cout << "AVL Height: " << avl.height() << endl;
+    auto avlDeleteEnd =
+        chrono::high_resolution_clock::now();
 
-  cout << "AVL Rotations: " << avl.getRotations() << endl;
+    auto avlDeleteTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                avlDeleteEnd - avlDeleteStart
+        ).count();
 
-  cout << "AVL Valid: ";
+    cout << "AVL Delete Time: "
+         << avlDeleteTime
+         << " ns"
+         << endl;
 
-  if (avl.validateAVL())
-    cout << "YES";
-  else
-    cout << "NO";
+    cout << "AVL Height: "
+         << avl.height()
+         << endl;
 
-  cout << endl << endl;
+    cout << "AVL Rotations: "
+         << avl.getRotations()
+         << endl;
 
-  file << "AVL," << avlInsertTime << "," << avlSearchTime << ","
-       << avlDeleteTime << "," << avl.height() << "," << avl.getRotations()
-       << "," << (avl.validateAVL() ? "YES" : "NO") << endl;
+    cout << "AVL Valid: ";
 
-  cout << "==============================" << endl;
+    if (avl.validateAVL())
+        cout << "YES";
+    else
+        cout << "NO";
 
-  cout << "RED BLACK INSERT TEST" << endl;
+    cout << endl;
 
-  cout << "==============================" << endl;
+    cout << "AVL Checksum: "
+         << avlChecksum
+         << endl << endl;
 
-  auto startRB = chrono::high_resolution_clock::now();
+    file << "AVL,"
+         << avlInsertTime << ","
+         << avlSearchTime << ","
+         << avlDeleteTime << ","
+         << avl.height() << ","
+         << avl.getRotations() << ","
+         << (avl.validateAVL() ? "YES" : "NO")
+         << endl;
 
-  for (auto &rule : rules) {
+    cout << "=============================="
+         << endl;
 
-    rb.insert(rule);
-  }
+    cout << "RED BLACK INSERT TEST"
+         << endl;
 
-  auto endRB = chrono::high_resolution_clock::now();
+    cout << "=============================="
+         << endl;
 
-  auto rbInsertTime =
-      chrono::duration_cast<chrono::nanoseconds>(endRB - startRB).count();
+    auto startRB =
+        chrono::high_resolution_clock::now();
 
-  cout << "RB Insert Time: " << rbInsertTime << " ns" << endl;
+    for (auto &rule : rules) {
 
-  auto rbSearchStart = chrono::high_resolution_clock::now();
+        rb.insert(rule);
+    }
 
-  for (int i = 1; i <= TOTAL_RULES; i++) {
+    auto endRB =
+        chrono::high_resolution_clock::now();
 
-    rb.search(i);
-  }
+    auto rbInsertTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                endRB - startRB
+        ).count();
 
-  auto rbSearchEnd = chrono::high_resolution_clock::now();
+    cout << "RB Insert Time: "
+         << rbInsertTime
+         << " ns"
+         << endl;
 
-  auto rbSearchTime =
-      chrono::duration_cast<chrono::nanoseconds>(rbSearchEnd - rbSearchStart)
-          .count();
+    volatile int rbChecksum = 0;
 
-  cout << "RB Search Time: " << rbSearchTime << " ns" << endl;
+    auto rbSearchStart =
+        chrono::high_resolution_clock::now();
 
-  auto rbDeleteStart = chrono::high_resolution_clock::now();
+    for (int i = 1; i <= TOTAL_RULES; i++) {
 
-  for (int i = 1; i <= deleteAmount; i++) {
+        PacketRule* result =
+            rb.search(i);
 
-    rb.deleteRule(i);
-  }
+        if (result != nullptr) {
 
-  auto rbDeleteEnd = chrono::high_resolution_clock::now();
+            rbChecksum += result->priority;
+        }
+    }
 
-  auto rbDeleteTime =
-      chrono::duration_cast<chrono::nanoseconds>(rbDeleteEnd - rbDeleteStart)
-          .count();
+    auto rbSearchEnd =
+        chrono::high_resolution_clock::now();
 
-  cout << "RB Delete Time: " << rbDeleteTime << " ns" << endl;
+    auto rbSearchTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                rbSearchEnd - rbSearchStart
+        ).count();
 
-  cout << "RB Height: " << rb.height() << endl;
+    cout << "RB Search Time: "
+         << rbSearchTime
+         << " ns"
+         << endl;
 
-  cout << "RB Rotations: " << rb.getRotations() << endl;
+    auto rbDeleteStart =
+        chrono::high_resolution_clock::now();
 
-  cout << "RB Valid: ";
+    for (int i = 1; i <= deleteAmount; i++) {
 
-  if (rb.validateRedBlack())
-    cout << "YES";
-  else
-    cout << "NO";
+        rb.deleteRule(i);
+    }
 
-  cout << endl << endl;
+    auto rbDeleteEnd =
+        chrono::high_resolution_clock::now();
 
-  file << "RedBlack," << rbInsertTime << "," << rbSearchTime << ","
-       << rbDeleteTime << "," << rb.height() << "," << rb.getRotations() << ","
-       << (rb.validateRedBlack() ? "YES" : "NO") << endl;
+    auto rbDeleteTime =
+        chrono::duration_cast<
+            chrono::nanoseconds>(
+                rbDeleteEnd - rbDeleteStart
+        ).count();
 
-  file.close();
+    cout << "RB Delete Time: "
+         << rbDeleteTime
+         << " ns"
+         << endl;
 
-  cout << "==============================" << endl;
+    cout << "RB Height: "
+         << rb.height()
+         << endl;
 
-  cout << "BENCHMARK FINISHED" << endl;
+    cout << "RB Rotations: "
+         << rb.getRotations()
+         << endl;
 
-  cout << "==============================" << endl;
+    cout << "RB Valid: ";
 
-  cout << "Results exported to results.csv" << endl;
+    if (rb.validateRedBlack())
+        cout << "YES";
+    else
+        cout << "NO";
 
-  return 0;
+    cout << endl;
+
+    cout << "RB Checksum: "
+         << rbChecksum
+         << endl << endl;
+
+    file << "RedBlack,"
+         << rbInsertTime << ","
+         << rbSearchTime << ","
+         << rbDeleteTime << ","
+         << rb.height() << ","
+         << rb.getRotations() << ","
+         << (rb.validateRedBlack() ? "YES" : "NO")
+         << endl;
+
+    file.close();
+
+    cout << "=============================="
+         << endl;
+
+    cout << "BENCHMARK FINISHED"
+         << endl;
+
+    cout << "=============================="
+         << endl;
+
+    cout << "Results exported to results.csv"
+         << endl;
+
+    return 0;
 }

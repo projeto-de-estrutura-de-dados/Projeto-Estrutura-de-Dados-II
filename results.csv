@@ -1,3 +1,0 @@
-Structure,InsertTime(ns),SearchTime(ns),DeleteTime(ns),Height,Rotations,Valid
-AVL,30004200,100,1978600,17,109980,YES
-RedBlack,16032500,0,1621800,30,109968,YES
